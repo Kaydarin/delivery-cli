@@ -51,28 +51,31 @@ class App extends IO {
 				throw "No. of packages input must exist and should be number";
 			}
 
+			if (baseCost < 0) {
+				throw "Base cost input cannot be less than 0";
+			}
+
+			if (packageCount < 0) {
+				throw "No. of packages input cannot be less than 0";
+			}
+
 			console.log(
 				"\nInsert package input. Example: PKG_ID <SPACE> PKG_WEIGHT <SPACE> PKG_DISTANCE <SPACE> OFFER_CODE\n"
 			);
 
 			for (let i = 0; i < packageCount; i++) {
 				const inputs = await new Promise((resolve, reject) => {
-					this.rl.question(`Package input no ${i + 1}? : `, (input) => {
-						const pkg = input.split(" ");
-
-						const id = pkg[0];
-						const weight = Number(pkg[1]);
-						const distance = Number(pkg[2]);
-						const code = pkg[3];
-
-						// TODO: Return sanitized input
-
-						resolve();
-					});
+					this.rl.question(`Package input no ${i + 1}? : `, (input) =>
+						this.inputPackage(input, resolve, reject)
+					);
 				});
-
-				// TODO: Calculate delivery cost
 			}
+
+			// TODO: Calculate delivery cost
+
+			console.log(
+				"Result as follow: Example: PKG_ID <SPACE> DISCOUNTED_AMOUNT <SPACE> TOTAL_COST\n"
+			);
 
 			this.rl.close();
 		} catch (e) {
@@ -80,7 +83,49 @@ class App extends IO {
 			this.rl.close();
 		}
 	};
+
+	inputPackage = (input, resolve, reject) => {
+		const pkg = input.split(" ");
+
+		const id = pkg[0];
+		const weight = Number(pkg[1]);
+		const distance = Number(pkg[2]);
+		let code = pkg[3];
+
+		if (typeof id == "undefined") {
+			reject("Must have package ID.");
+		}
+
+		if (!this.isNumExist(weight)) {
+			reject("Weight input must exist and should be number.");
+		}
+
+		if (!this.isNumExist(distance)) {
+			reject("Distance input must exist and should be number.");
+		}
+
+		if (weight < 0) {
+			reject("Weight input cannot be less than 0.");
+		}
+
+		if (distance < 0) {
+			reject("Distance input cannot be less than 0.");
+		}
+
+		if (typeof code == "undefined") {
+			code = null;
+		}
+
+		resolve({
+			id,
+			weight,
+			distance,
+			code,
+		});
+	};
 }
 
 const app = new App();
 app.start();
+
+module.exports = { App };
