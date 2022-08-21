@@ -20,6 +20,9 @@ class App extends IO {
 			const baseCost = parseInt(words[0]);
 			const packageCount = parseInt(words[1]);
 
+			/**
+			 * Input validation
+			 */
 			if (!this.isNumExist(baseCost)) {
 				throw "Base cost input must exist and should be number";
 			}
@@ -42,9 +45,13 @@ class App extends IO {
 
 			const resultList = [];
 
+			/**
+			 * Ask for each package info
+			 */
 			for (let i = 0; i < packageCount; i++) {
 				const inputs = await new Promise((resolve, reject) => {
 					this.rl.question(`Package input no ${i + 1}? : `, (input) =>
+						// Process each package input
 						this.inputPackage(input, resolve, reject)
 					);
 				});
@@ -57,6 +64,7 @@ class App extends IO {
 					}km\nPromo Code: ${inputs.code ? inputs.code : "Not set"}\n`
 				);
 
+				// Create Package instance
 				const pkg = new Package(
 					inputs.id,
 					inputs.weight,
@@ -74,6 +82,9 @@ class App extends IO {
 				"Result as follow: Example: PKG_ID <SPACE> DISCOUNTED_AMOUNT <SPACE> TOTAL_COST\n"
 			);
 
+			/**
+			 * Calculate and display each package total cost and discounted amount
+			 */
 			for (let i = 0; i < resultListCount; i++) {
 				const pkgObj = resultList[i];
 				const pkgCosting = pkgObj.getTotalCostAndDiscounted();
@@ -100,6 +111,9 @@ class App extends IO {
 		const distance = Number(pkg[2]);
 		let code = pkg[3];
 
+		/**
+		 * Input validation
+		 */
 		if (typeof id == "undefined") {
 			reject("Must have package ID.");
 		}

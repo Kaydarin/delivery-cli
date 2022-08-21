@@ -2,6 +2,7 @@ const readline = require("readline");
 
 class IO {
 	constructor() {
+		// Initialize NodeJS IO process
 		this.rl = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout,

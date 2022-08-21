@@ -39,6 +39,7 @@ class Package extends Offer {
 		let discountedAmount = 0;
 		let offerFound = null;
 
+		// Search offer if code exist
 		if (this.code) {
 			offerFound = this.offers.find(
 				(ofr) => ofr.name === this.code.toUpperCase()
