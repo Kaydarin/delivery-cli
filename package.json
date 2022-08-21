@@ -1,0 +1,22 @@
+{
+  "name": "delivery-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/index.js",
+  "bin": {
+    "index": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaydarin/delivery-cli.git"
+  },
+  "author": "Kaydarin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kaydarin/delivery-cli/issues"
+  },
+  "homepage": "https://github.com/Kaydarin/delivery-cli#readme"
+}
