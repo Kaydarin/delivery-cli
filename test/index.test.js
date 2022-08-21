@@ -10,6 +10,8 @@ describe("Delivery CLI Test", () => {
 		"ERROR: Base cost input must exist and should be number";
 	const packagesCountInputError =
 		"ERROR: No. of packages input must exist and should be number";
+	const nextQuestionDesc =
+		"Insert package input. Example: PKG_ID <SPACE> PKG_WEIGHT <SPACE> PKG_DISTANCE <SPACE> OFFER_CODE";
 	const quitMessage = "BYE BYE !!!";
 
 	const successDataSet = [
@@ -26,38 +28,53 @@ describe("Delivery CLI Test", () => {
 		[10, "text", packagesCountInputError],
 	];
 
-	it.each(successDataSet)("Runs successfully", async (inputOne, inputTwo) => {
-		const { spawn, cleanup } = await prepareEnvironment();
-		const {
-			waitForText,
-			waitForFinish,
-			writeText,
-			getStdout,
-			getExitCode,
-			kill,
-			debug,
-			pressKey,
-		} = await spawn("node", "./bin/index.js");
+	it.each(successDataSet)(
+		"Runs successfully with input 1: (%s) and input 2: (%s)",
+		async (inputOne, inputTwo) => {
+			const { spawn, cleanup } = await prepareEnvironment();
+			const {
+				waitForText,
+				waitForFinish,
+				writeText,
+				getStdout,
+				getExitCode,
+				kill,
+				debug,
+				pressKey,
+			} = await spawn("node", "./bin/index.js");
 
-		debug(); // enables logging to console from the tested program
+			debug(); // enables logging to console from the tested program
 
-		const inputText = `${inputOne} ${inputTwo}`;
+			const inputText = `${inputOne} ${inputTwo}`;
+			const expected = [initialQuestion, nextQuestionDesc, quitMessage];
+			const nextQuestion = `Package input no 1? :`;
 
-		await waitForText(initialQuestion); // wait for question
-		await writeText(inputText); // answer the question above
-		await pressKey("enter"); // confirm with Enter
-		await waitForFinish(); // wait for program to finish
+			if (inputTwo > 0) {
+				expected.splice(2, 0, nextQuestion);
+			}
 
-		kill(); // would kill the program if we didn't wait for finish above
+			await waitForText(initialQuestion); // wait for question
+			await writeText(inputText); // answer the question above
+			await pressKey("enter"); // confirm with Enter
+			waitForText(nextQuestionDesc);
 
-		expect(getStdout()).toStrictEqual([initialQuestion, quitMessage]);
-		expect(getExitCode()).toBe(0);
+			if (inputTwo > 0) {
+				waitForText(nextQuestion);
+			}
 
-		await cleanup(); // cleanup after test
-	});
+			await waitForFinish(); // wait for program to finish
+
+			kill(); // would kill the program if we didn't wait for finish above
+
+			expect(getStdout()).toStrictEqual(expected);
+			expect(getExitCode()).toBe(0);
+
+			await cleanup(); // cleanup after test
+		}
+	);
 
 	it.each(failureDataSet)(
-		"Failed with first input: %s and second input: %s",
+		"Failed with input one: (%s) and input two: (%s)",
 		async (inputOne, inputTwo, expectedMessage) => {
 			const { spawn, cleanup } = await prepareEnvironment();
 			const {

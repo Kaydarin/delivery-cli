@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const readline = require("readline");
+
 class IO {
 	constructor() {
 		this.rl = readline.createInterface({
@@ -50,7 +51,28 @@ class App extends IO {
 				throw "No. of packages input must exist and should be number";
 			}
 
-			// TODO: Loop through no. of packages and ask each package info (package ID, package weight, package distance, discount code)
+			console.log(
+				"\nInsert package input. Example: PKG_ID <SPACE> PKG_WEIGHT <SPACE> PKG_DISTANCE <SPACE> OFFER_CODE\n"
+			);
+
+			for (let i = 0; i < packageCount; i++) {
+				const inputs = await new Promise((resolve, reject) => {
+					this.rl.question(`Package input no ${i + 1}? : `, (input) => {
+						const pkg = input.split(" ");
+
+						const id = pkg[0];
+						const weight = Number(pkg[1]);
+						const distance = Number(pkg[2]);
+						const code = pkg[3];
+
+						// TODO: Return sanitized input
+
+						resolve();
+					});
+				});
+
+				// TODO: Calculate delivery cost
+			}
 
 			this.rl.close();
 		} catch (e) {
