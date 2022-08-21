@@ -2,6 +2,103 @@
 
 const readline = require("readline");
 
+class Offer {
+	constructor() {
+		this.offers = [
+			{
+				name: "OFR001",
+				discount: 10,
+				minDist: 0,
+				maxDist: 200,
+				minWeight: 70,
+				maxWeight: 200,
+			},
+			{
+				name: "OFR002",
+				discount: 7,
+				minDist: 50,
+				maxDist: 150,
+				minWeight: 100,
+				maxWeight: 250,
+			},
+			{
+				name: "OFR003",
+				discount: 5,
+				minDist: 50,
+				maxDist: 250,
+				minWeight: 10,
+				maxWeight: 150,
+			},
+		];
+	}
+}
+
+class Package extends Offer {
+	constructor(id, weight, distance, code, baseCost) {
+		super();
+
+		try {
+			this.#validate(id, weight, distance, baseCost);
+			this.id = id;
+			this.weight = weight;
+			this.distance = distance;
+			this.code = code;
+			this.baseCost = baseCost;
+		} finally {
+		}
+	}
+
+	#validate(id, weight, distance, baseCost) {
+		if (typeof id == undefined) {
+			throw "Package ID is required";
+		} else if (isNaN(weight)) {
+			throw "Package weight is required and must be a number";
+		} else if (weight < 0) {
+			throw "Package weight cannot be less than 0";
+		} else if (isNaN(distance)) {
+			throw "Package distance is required and must be a number";
+		} else if (distance < 0) {
+			throw "Package distance cannot be less than 0";
+		} else if (isNaN(baseCost)) {
+			throw "Package base cost is required and must be a number";
+		} else if (baseCost < 0) {
+			throw "Package base cost cannot be less than 0";
+		}
+	}
+
+	getTotalCostAndDiscounted = () => {
+		const deliveryCost = this.baseCost + this.weight * 10 + this.distance * 5;
+		let totalCost = deliveryCost;
+		let discountedAmount = 0;
+		let offerFound = null;
+
+		if (this.code) {
+			offerFound = this.offers.find(
+				(ofr) => ofr.name === this.code.toUpperCase()
+			);
+		}
+
+		if (offerFound) {
+			if (
+				this.distance >= offerFound.minDist &&
+				this.distance <= offerFound.maxDist &&
+				this.weight >= offerFound.minWeight &&
+				this.weight <= offerFound.maxWeight
+			) {
+				const discount = offerFound.discount;
+
+				discountedAmount = (deliveryCost * discount) / 100;
+				totalCost = deliveryCost - discountedAmount;
+			}
+		}
+
+		return {
+			totalCost,
+			discountedAmount,
+		};
+	};
+}
+
 class IO {
 	constructor() {
 		this.rl = readline.createInterface({
@@ -63,19 +160,50 @@ class App extends IO {
 				"\nInsert package input. Example: PKG_ID <SPACE> PKG_WEIGHT <SPACE> PKG_DISTANCE <SPACE> OFFER_CODE\n"
 			);
 
+			const resultList = [];
+
 			for (let i = 0; i < packageCount; i++) {
 				const inputs = await new Promise((resolve, reject) => {
 					this.rl.question(`Package input no ${i + 1}? : `, (input) =>
 						this.inputPackage(input, resolve, reject)
 					);
 				});
+
+				console.log(
+					`\nYour package input no. ${i + 1} is:\nPackage ID: ${
+						inputs.id
+					}\nPackage Weight: ${inputs.weight}kg\nDelivery Distance: ${
+						inputs.distance
+					}km\nPromo Code: ${inputs.code ? inputs.code : "Not set"}\n`
+				);
+
+				const pkg = new Package(
+					inputs.id,
+					inputs.weight,
+					inputs.distance,
+					inputs.code,
+					baseCost
+				);
+
+				resultList.push(pkg);
 			}
 
-			// TODO: Calculate delivery cost
+			const resultListCount = resultList.length;
 
 			console.log(
 				"Result as follow: Example: PKG_ID <SPACE> DISCOUNTED_AMOUNT <SPACE> TOTAL_COST\n"
 			);
+
+			for (let i = 0; i < resultListCount; i++) {
+				const pkgObj = resultList[i];
+				const pkgCosting = pkgObj.getTotalCostAndDiscounted();
+
+				console.log(
+					pkgObj.id,
+					pkgCosting.discountedAmount,
+					pkgCosting.totalCost
+				);
+			}
 
 			this.rl.close();
 		} catch (e) {
@@ -128,4 +256,4 @@ class App extends IO {
 const app = new App();
 app.start();
 
-module.exports = { App };
+module.exports = { App, Package };
